@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Onboarding1 from "./Functions/Onboarding1";
+import NumberOfCourses from "./Functions/NumberOfCourses";
 
 export default function Onboarding() {
   return (
@@ -33,7 +33,7 @@ export default function Onboarding() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full ">
-            <Onboarding1 />
+            <NumberOfCourses />
           </div>
         </div>
       </div>
