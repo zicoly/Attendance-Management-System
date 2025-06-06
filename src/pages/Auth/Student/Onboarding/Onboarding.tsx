@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import SignUpForm from "./Functions/SignUpForm";
+import Onboarding1 from "./Functions/Onboarding1";
 
-export default function SignUp() {
+export default function Onboarding() {
   return (
     <div className="p-4 grid min-h-svh lg:grid-cols-2">
       <div className="relative hidden lg:block">
@@ -33,7 +33,7 @@ export default function SignUp() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full ">
-            <SignUpForm />
+            <Onboarding1 />
           </div>
         </div>
       </div>
