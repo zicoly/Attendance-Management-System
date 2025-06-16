@@ -14,6 +14,7 @@ import StudentLayout from "./layouts/StudentLayout";
 import LecturerDashboard from "./pages/lecturer/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard/Dashboard";
 import StudentHistory from "./pages/student/History/StudentHistory";
+import AttendanceApp from "./pages/AttendanceApp";
 
 export default function App() {
   const { role } = useAuth();
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/onboarding/1" element={<Onboarding />} />
         <Route path="/onboarding/2" element={<Onboarding2 />} />
+        <Route path="/geolocation" element={<AttendanceApp />} />
 
         {/* change the role to "student" to design your view */}
         {role === "student" ? (
