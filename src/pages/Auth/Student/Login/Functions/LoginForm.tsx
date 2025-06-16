@@ -1,8 +1,9 @@
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [password, setPassword] = useState("");
@@ -15,6 +16,7 @@ export default function LoginForm() {
     };
     setIsLoading(false);
     console.log("Payload: ", payload);
+    navigate("/dashboard");
   };
   return (
     <div>
