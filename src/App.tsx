@@ -11,10 +11,11 @@ import Onboarding2 from "./pages/Auth/Student/Onboarding/Onboarding2";
 import { useAuth } from "./context/AuthContext";
 import LecturerLayout from "./layouts/LecturerLayout";
 import StudentLayout from "./layouts/StudentLayout";
-import LecturerDashboard from "./pages/lecturer/Dashboard";
-import StudentDashboard from "./pages/student/Dashboard/Dashboard";
 import StudentHistory from "./pages/student/History/StudentHistory";
 import AttendanceApp from "./pages/AttendanceApp";
+import LecturerDashboard from "./pages/lecturer/Home/LecturerDashboard";
+import StudentDashboard from "./pages/student/Home/StudentDashboard";
+import LoginLecturer from "./pages/Auth/Lecturer/Login/Login";
 
 export default function App() {
   const { role } = useAuth();
@@ -23,6 +24,9 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/sign-up-lecturer" element={<LoginLecturer />} />
+        <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/onboarding/1" element={<Onboarding />} />
         <Route path="/onboarding/2" element={<Onboarding2 />} />

@@ -2,7 +2,7 @@ import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-export default function LoginForm() {
+export default function LoginFormLecturer() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -16,14 +16,14 @@ export default function LoginForm() {
     };
     setIsLoading(false);
     console.log("Payload: ", payload);
-    navigate("/student-dashboard");
+    navigate("/lecturer-dashboard");
   };
   return (
     <div>
       <div>
         <h2 className="font-inter text-xl font-semibold ">Welcome Back</h2>
         <p className="font-inter text-foreground">
-          Login to your account - <strong>Student</strong> Sign in{" "}
+          Login to your account - <strong>Lecturer</strong> Sign in{" "}
         </p>
         <form onSubmit={handleSubmit} action="submit">
           <div className="mb-1">
