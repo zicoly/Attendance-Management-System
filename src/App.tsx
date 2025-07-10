@@ -16,9 +16,11 @@ import AttendanceApp from "./pages/AttendanceApp";
 import LecturerDashboard from "./pages/lecturer/Home/LecturerDashboard";
 import StudentDashboard from "./pages/student/Home/StudentDashboard";
 import LoginLecturer from "./pages/Auth/Lecturer/Login/Login";
+import { ToastContainer } from "react-toastify";
+import VerifyEmail from "./pages/Auth/VerifyEmail/VerifyEmail";
 
 export default function App() {
-  const { role } = useAuth();
+  // const { role } = useAuth();
 
   return (
     <Router>
@@ -28,12 +30,14 @@ export default function App() {
         <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/sign-up" element={<SignUp />} />
+        <Route path="/verify" element={<VerifyEmail />} />
+
         <Route path="/onboarding/1" element={<Onboarding />} />
         <Route path="/onboarding/2" element={<Onboarding2 />} />
         <Route path="/geolocation" element={<AttendanceApp />} />
 
         {/* change the role to "student" to design your view */}
-        {role === "student" ? (
+        {/* {role === "student" ? (
           <Route element={<LecturerLayout />}>
             <Route path="/dashboard" element={<LecturerDashboard />} />
           </Route>
@@ -44,8 +48,9 @@ export default function App() {
           </Route>
         )}
 
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+        <Route path="*" element={<Navigate to="/dashboard" />} /> */}
       </Routes>
+      <ToastContainer />
     </Router>
   );
 }

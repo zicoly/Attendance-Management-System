@@ -1,30 +1,53 @@
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { auth } from "../../../../../config/firebase";
+import { signInWithEmailAndPassword } from "@firebase/auth";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
     const payload = {
+      email: email,
       password: password,
     };
-    setIsLoading(false);
     console.log("Payload: ", payload);
-    navigate("/student-dashboard");
+    // navigate("/student-dashboard");
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      console.log("user logged in successfully", user);
+      toast.success("Logged in successfully!");
+      navigate("/student-dashboard");
+    } catch (error: any) {
+      console.log("An error occured:", error);
+      if (error.message === "Firebase: Error (auth/invalid-credential).") {
+        toast.error("Invalid email or Password", {
+          position: "top-right",
+        });
+      } else {
+        toast.error(error.message);
+      }
+      setIsLoading(false);
+    }
   };
   return (
     <div>
       <div>
         <h2 className="font-inter text-xl font-semibold ">Welcome Back</h2>
-        <p className="font-inter text-foreground">
-          Login to your account - <strong>Student</strong> Sign in{" "}
-        </p>
+        <p className="font-inter text-foreground">Login to your account</p>
         <form onSubmit={handleSubmit} action="submit">
           <div className="mb-1">
             <label
@@ -43,6 +66,8 @@ export default function LoginForm() {
                 className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Email address"
                 required
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -103,11 +128,6 @@ export default function LoginForm() {
             <Link className="text-black font-semibold" to="/sign-up">
               {" "}
               Sign up
-            </Link>
-            or sign up as
-            <Link className="text-black font-semibold" to="/sign-up-lecturer">
-              {" "}
-              Lecturer
             </Link>
           </p>
         </div>

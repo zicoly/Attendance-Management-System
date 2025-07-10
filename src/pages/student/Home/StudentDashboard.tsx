@@ -1,5 +1,4 @@
 //@ts-nocheck
-
 import { useState, useEffect } from "react";
 import {
   BookOpen,
@@ -17,10 +16,22 @@ import {
   Zap,
   LogOut,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { auth } from "../../../config/firebase";
+import { useNavigate } from "react-router-dom";
 
+import { toast } from "react-toastify";
 // Mock Header component since we don't have the actual one
 function Header() {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await auth.signOut();
+      toast.success("Logged out successfully!");
+      navigate("/");
+    } catch (error: any) {
+      console.log("Error logging out: ", error?.message);
+    }
+  };
   return (
     <div className="flex justify-between items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-lg mb-6 shadow-lg">
       <div>
@@ -30,13 +41,13 @@ function Header() {
         </p>
       </div>
 
-      <Link
-        to="/"
+      <button
+        onClick={handleLogout}
         className="flex items-center gap-2 px-4 py-2 text-white hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
       >
         <LogOut className="w-4 h-4" />
         <span className="hidden sm:inline">Logout</span>
-      </Link>
+      </button>
     </div>
   );
 }
