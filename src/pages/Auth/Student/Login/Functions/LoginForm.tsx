@@ -1,28 +1,93 @@
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { auth, db } from "../../../../../config/firebase";
+import { signInWithEmailAndPassword } from "@firebase/auth";
+import { toast } from "react-toastify";
+import { query, collection, where, getDocs } from "firebase/firestore";
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
+
     const payload = {
+      email: email,
       password: password,
     };
-    setIsLoading(false);
     console.log("Payload: ", payload);
+
+    try {
+      // First, authenticate the user
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      console.log("user logged in successfully", user);
+
+      // Query Users collection by email
+      const usersRef = collection(db, "Users");
+      const q = query(usersRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        // Get the first matching document
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        const userRole = userData.role;
+
+        console.log("User role:", userRole);
+        console.log("User data:", userData);
+
+        // Navigate based on role
+        if (userRole === "student") {
+          toast.success("Logged in successfully!");
+          setIsLoading(false);
+          console.log("Navigating to / for student");
+          navigate("/student-dashboard", { replace: true });
+        } else if (userRole === "lecturer") {
+          toast.success("Logged in successfully!");
+          setIsLoading(false);
+          console.log("Navigating to /lecturer-dashboard for lecturer");
+          navigate("/lecturer-dashboard", { replace: true });
+        } else {
+          // Handle unknown role
+          toast.error("Invalid user role. Please contact support.");
+          console.error("Unknown user role:", userRole);
+          setIsLoading(false);
+        }
+      } else {
+        // User document doesn't exist in Users collection
+        toast.error("User data not found. Please contact support.");
+        console.error("No user document found for email:", email);
+        setIsLoading(false);
+      }
+    } catch (error: any) {
+      console.log("An error occured:", error);
+      if (error.message === "Firebase: Error (auth/invalid-credential).") {
+        toast.error("Invalid email or Password", {
+          position: "top-right",
+        });
+      } else {
+        toast.error(error.message);
+      }
+      setIsLoading(false);
+    }
   };
+
   return (
     <div>
       <div>
         <h2 className="font-inter text-xl font-semibold ">Welcome Back</h2>
-        <p className="font-inter text-foreground">
-          Login to your account - <strong>Student</strong> Sign in{" "}
-        </p>
+        <p className="font-inter text-foreground">Login to your account</p>
         <form onSubmit={handleSubmit} action="submit">
           <div className="mb-1">
             <label
@@ -41,6 +106,8 @@ export default function LoginForm() {
                 className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Email address"
                 required
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
               />
             </div>
           </div>
@@ -66,9 +133,9 @@ export default function LoginForm() {
                 className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Password"
                 required
+                value={password}
                 onChange={(e: any) => setPassword(e.target.value)}
               />
-
               <div
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 cursor-pointer pr-2"
                 onClick={() => setPasswordVisible(!passwordVisible)}
@@ -101,11 +168,6 @@ export default function LoginForm() {
             <Link className="text-black font-semibold" to="/sign-up">
               {" "}
               Sign up
-            </Link>
-            or sign up as
-            <Link className="text-black font-semibold" to="/sign-up-lecturer">
-              {" "}
-              Lecturer
             </Link>
           </p>
         </div>
