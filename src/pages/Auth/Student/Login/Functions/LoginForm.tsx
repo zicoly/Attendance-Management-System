@@ -1,9 +1,10 @@
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../../../../../config/firebase";
+import { auth, db } from "../../../../../config/firebase";
 import { signInWithEmailAndPassword } from "@firebase/auth";
 import { toast } from "react-toastify";
+import { query, collection, where, getDocs } from "firebase/firestore";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -15,13 +16,15 @@ export default function LoginForm() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
+
     const payload = {
       email: email,
       password: password,
     };
     console.log("Payload: ", payload);
-    // navigate("/student-dashboard");
+
     try {
+      // First, authenticate the user
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
@@ -29,8 +32,44 @@ export default function LoginForm() {
       );
       const user = userCredential.user;
       console.log("user logged in successfully", user);
-      toast.success("Logged in successfully!");
-      navigate("/student-dashboard");
+
+      // Query Users collection by email
+      const usersRef = collection(db, "Users");
+      const q = query(usersRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        // Get the first matching document
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        const userRole = userData.role;
+
+        console.log("User role:", userRole);
+        console.log("User data:", userData);
+
+        // Navigate based on role
+        if (userRole === "student") {
+          toast.success("Logged in successfully!");
+          setIsLoading(false);
+          console.log("Navigating to / for student");
+          navigate("/student-dashboard", { replace: true });
+        } else if (userRole === "lecturer") {
+          toast.success("Logged in successfully!");
+          setIsLoading(false);
+          console.log("Navigating to /lecturer-dashboard for lecturer");
+          navigate("/lecturer-dashboard", { replace: true });
+        } else {
+          // Handle unknown role
+          toast.error("Invalid user role. Please contact support.");
+          console.error("Unknown user role:", userRole);
+          setIsLoading(false);
+        }
+      } else {
+        // User document doesn't exist in Users collection
+        toast.error("User data not found. Please contact support.");
+        console.error("No user document found for email:", email);
+        setIsLoading(false);
+      }
     } catch (error: any) {
       console.log("An error occured:", error);
       if (error.message === "Firebase: Error (auth/invalid-credential).") {
@@ -43,6 +82,7 @@ export default function LoginForm() {
       setIsLoading(false);
     }
   };
+
   return (
     <div>
       <div>
@@ -93,9 +133,9 @@ export default function LoginForm() {
                 className="block w-full p-3 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Password"
                 required
+                value={password}
                 onChange={(e: any) => setPassword(e.target.value)}
               />
-
               <div
                 className="absolute right-0 top-1/2 transform -translate-y-1/2 cursor-pointer pr-2"
                 onClick={() => setPasswordVisible(!passwordVisible)}

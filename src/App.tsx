@@ -15,7 +15,6 @@ import StudentHistory from "./pages/student/History/StudentHistory";
 import AttendanceApp from "./pages/AttendanceApp";
 import LecturerDashboard from "./pages/lecturer/Home/LecturerDashboard";
 import StudentDashboard from "./pages/student/Home/StudentDashboard";
-import LoginLecturer from "./pages/Auth/Lecturer/Login/Login";
 import { ToastContainer } from "react-toastify";
 import VerifyEmail from "./pages/Auth/VerifyEmail/VerifyEmail";
 
@@ -25,12 +24,11 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/sign-up-lecturer" element={<LoginLecturer />} />
-        <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/verify" element={<VerifyEmail />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
 
         <Route path="/onboarding/1" element={<Onboarding />} />
         <Route path="/onboarding/2" element={<Onboarding2 />} />
