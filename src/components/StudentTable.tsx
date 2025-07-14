@@ -1,12 +1,53 @@
-import React, { useState } from "react";
-import { studentsData, type Student } from "../data/students";
+// src/components/StudentTable.tsx
+import React, { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../config/firebase";
 import dayjs from "dayjs";
+
+type Student = {
+  fullName: string;
+  studentID: string;
+  email: string;
+  department: string;
+  level: string;
+  course: string;
+  date: string; // attendanceTime
+};
 
 type DateFilter = "all" | "week" | "month";
 
 export const StudentTable: React.FC = () => {
+  const [studentsData, setStudentsData] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const classesSnap = await getDocs(collection(db, "classes"));
+      const allStudents: Student[] = [];
+
+      classesSnap.forEach((clsDoc) => {
+        const classData = clsDoc.data();
+        const { title, attendees = [] } = classData;
+
+        attendees.forEach((student: any) => {
+          allStudents.push({
+            fullName: `${student.lastName} ${student.firstName}`,
+            studentID: student.studentId,
+            email: student.email,
+            department: student.department,
+            level: student.level,
+            course: title,
+            date: student.attendanceTime,
+          });
+        });
+      });
+
+      setStudentsData(allStudents);
+    };
+
+    fetchData();
+  }, []);
 
   const filterByDate = (students: Student[]) => {
     const now = dayjs();
@@ -30,7 +71,7 @@ export const StudentTable: React.FC = () => {
     const filtered = searchFilter(filterByDate(studentsData));
 
     filtered.forEach((student) => {
-      const key = `${student.level}_${student.courseCode}`;
+      const key = `${student.level}_${student.course}`;
       if (!grouped[key]) grouped[key] = [];
       grouped[key].push(student);
     });
@@ -44,23 +85,19 @@ export const StudentTable: React.FC = () => {
       "Matric Number",
       "Email",
       "Department",
-      "Phone",
       "Level",
-      "Course Code",
-      "Course Title",
+      "Course",
       "Date",
     ];
 
     const rows = students.map((s) => [
       s.fullName,
-      s.matricNumber,
+      s.studentID,
       s.email,
       s.department,
-      s.phone,
       s.level,
-      s.courseCode,
-      s.courseTitle,
-      dayjs(s.date).format("YYYY-MM-DD"),
+      s.course,
+      dayjs(s.date).format("YYYY-MM-DD HH:mm"),
     ]);
 
     const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
@@ -104,15 +141,14 @@ export const StudentTable: React.FC = () => {
       </div>
 
       {Object.entries(groupedData).map(([groupKey, students]) => {
-        const [level, courseCode] = groupKey.split("_");
-        const { courseTitle } = students[0];
-        const title = `Level ${level} - ${courseCode}`;
+        const [level, course] = groupKey.split("_");
+        const title = `Level ${level} - ${course}`;
 
         return (
           <div key={groupKey} className="mb-10">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xl font-semibold text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text">
-                Level {level} - {courseCode} ({courseTitle})
+                {title}
               </h3>
               <button
                 onClick={() => downloadCSV(students, title)}
@@ -129,10 +165,8 @@ export const StudentTable: React.FC = () => {
                     <th className="p-3">Matric No</th>
                     <th className="p-3">Email</th>
                     <th className="p-3">Department</th>
-                    <th className="p-3">Phone</th>
                     <th className="p-3">Level</th>
-                    <th className="p-3">Course Code</th>
-                    <th className="p-3">Course Title</th>
+                    <th className="p-3">Course</th>
                     <th className="p-3">Date</th>
                   </tr>
                 </thead>
@@ -140,15 +174,13 @@ export const StudentTable: React.FC = () => {
                   {students.map((student, idx) => (
                     <tr key={idx} className="border-t hover:bg-purple-50">
                       <td className="p-3">{student.fullName}</td>
-                      <td className="p-3">{student.matricNumber}</td>
+                      <td className="p-3">{student.studentID}</td>
                       <td className="p-3">{student.email}</td>
                       <td className="p-3">{student.department}</td>
-                      <td className="p-3">{student.phone}</td>
                       <td className="p-3">{student.level}</td>
-                      <td className="p-3">{student.courseCode}</td>
-                      <td className="p-3">{student.courseTitle}</td>
+                      <td className="p-3">{student.course}</td>
                       <td className="p-3">
-                        {dayjs(student.date).format("DD MMM, YYYY")}
+                        {dayjs(student.date).format("DD MMM, YYYY HH:mm")}
                       </td>
                     </tr>
                   ))}

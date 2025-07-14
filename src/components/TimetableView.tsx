@@ -1,11 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { attendanceByDay } from "../data/studentSchedule";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../config/firebase";
+import { useUserStore } from "../store/userStore";
+import useUserData from "../hooks/useUserData";
+import { CheckCircle, XCircle, Search } from "lucide-react";
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
 import weekOfYear from "dayjs/plugin/weekOfYear";
-import { CheckCircle, XCircle, Search } from "lucide-react";
 
 dayjs.extend(isoWeek);
 dayjs.extend(weekOfYear);
@@ -18,65 +21,71 @@ const dayToNumber = {
   Friday: 5,
 };
 
-const getMonthWeeks = (month: number, year: number) => {
-  const paddedMonth = String(month).padStart(2, "0");
-  const start = dayjs(`${year}-${paddedMonth}-01`).startOf("month");
-  const end = dayjs(`${year}-${paddedMonth}-01`).endOf("month");
-  const startWeek = start.isoWeek();
-  const endWeek = end.isoWeek();
-
-  let weeks: number[] = [];
-  for (let w = startWeek; w <= endWeek; w++) weeks.push(w);
-  return weeks;
+type Attendee = {
+  studentId: string;
+  firstName: string;
+  lastName: string;
+  attendanceTime: string;
 };
 
-export const TimetableView = () => {
+type ClassItem = {
+  title: string;
+  lecturerName: string;
+  lecturerlastName: string;
+  duration: string;
+  attendees: Attendee[];
+};
+
+export const PersonalAttendanceTable: React.FC = () => {
+  const [classes, setClasses] = useState<ClassItem[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
   const weekRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
-  const month = dayjs(selectedDate).month() + 1;
-  const year = dayjs(selectedDate).year();
-  const paddedMonth = String(month).padStart(2, "0");
-  const selectedMonthYear = dayjs(`${year}-${paddedMonth}-01`).format(
-    "MMMM YYYY"
-  );
-  const selectedWeek = dayjs(selectedDate).isoWeek();
-  const selectedDay = dayjs(selectedDate).format("dddd");
-  const weeks = getMonthWeeks(month, year);
-
-  // ✅ Search: matches course code, title, lecturer, status, duration, date, day
-  const filteredData = attendanceByDay.filter((item) => {
-    const itemDate = dayjs(item.date);
-    const isSameMonth =
-      itemDate.month() + 1 === month && itemDate.year() === year;
-    const dayName = itemDate.format("dddd");
-    const searchableText = [
-      item.courseCode,
-      item.courseTitle,
-      item.lecturer,
-      item.status,
-      item.duration,
-      item.date,
-      dayName,
-    ]
-      .join(" ")
-      .toLowerCase();
-    const matchesSearch = searchableText.includes(search.toLowerCase());
-    return isSameMonth && matchesSearch;
-  });
+  useUserData();
+  const { userId } = useUserStore();
 
   useEffect(() => {
-    const targetWeek = weekRefs.current[selectedWeek];
-    if (targetWeek) {
-      targetWeek.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [selectedWeek]);
+    const fetchClasses = async () => {
+      const snapshot = await getDocs(collection(db, "classes"));
+      const loaded: ClassItem[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        loaded.push({
+          title: data.title,
+          lecturerName: data.lecturerName,
+          lecturerlastName: data.lecturerlastName,
+          duration: data.duration,
+          attendees: data.attendees || [],
+        });
+      });
+      setClasses(loaded);
+      setLoading(false);
+    };
+    fetchClasses();
+  }, []);
+
+  const selectedDay = dayjs(selectedDate).format("dddd");
+  const selectedDateFormatted = dayjs(selectedDate).format("DD/MM/YYYY");
+  const today = dayjs();
+
+  const filteredClasses = classes.filter((cls) => {
+    const matchesSearch =
+      cls.title.toLowerCase().includes(search.toLowerCase()) ||
+      cls.lecturerName.toLowerCase().includes(search.toLowerCase()) ||
+      cls.lecturerlastName.toLowerCase().includes(search.toLowerCase());
+    return search.trim() === "" || matchesSearch;
+  });
+
+  const isFutureDate = dayjs(selectedDate).isAfter(today, "day");
+
+  if (loading || !userId) return <div className="p-6">Loading...</div>;
 
   return (
     <div className="p-6 bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 min-h-screen text-gray-800">
       <h2 className="text-3xl font-bold mb-6 text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text">
-        Attendance History - {selectedMonthYear}
+        My Attendance - {dayjs(selectedDate).format("MMMM YYYY")}
       </h2>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -90,104 +99,63 @@ export const TimetableView = () => {
           <Search className="text-purple-600" />
           <input
             type="text"
-            placeholder="Search anything..."
-            className="flex-1 outline-none text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search course or lecturer..."
+            className="flex-1 outline-none text-sm"
           />
         </div>
       </div>
 
-      {/* ✅ Show "No record" if search returns empty */}
-      {filteredData.length === 0 ? (
-        <div className="text-center text-gray-600 text-lg font-medium p-6">
-          No record found for {selectedMonthYear}
-        </div>
+      <h3 className="font-bold text-purple-700 mb-4 text-xl">
+        {selectedDay} - {selectedDateFormatted}
+      </h3>
+
+      {isFutureDate ? (
+        <p className="text-gray-500 text-sm">No record yet.</p>
+      ) : filteredClasses.length === 0 ? (
+        <p className="text-gray-500 text-sm">No record yet.</p>
       ) : (
-        weeks.map((week) => {
-          const weekStart = dayjs().isoWeek(week).startOf("isoWeek");
-          const weekEnd = dayjs().isoWeek(week).endOf("isoWeek");
-          const weekAttendance = filteredData.filter(
-            (item) => dayjs(item.date).isoWeek() === week
-          );
-
-          return (
-            <div
-              key={week}
-              ref={(el) => {
-                weekRefs.current[week] = el;
-              }}
-              className={`mb-8 p-5 rounded-lg ${
-                week === selectedWeek
-                  ? "border-2 border-indigo-600 bg-white shadow-lg"
-                  : "border border-gray-200 bg-white shadow-sm"
-              }`}
-            >
-              <h3 className="text-xl font-semibold mb-4 text-indigo-700">
-                Week {week}
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {Object.entries(dayToNumber).map(([day, dayNum]) => {
-                  const date = dayjs().isoWeek(week).isoWeekday(dayNum);
-                  const dayAttendance = weekAttendance.filter((item) =>
-                    dayjs(item.date).isSame(date, "day")
-                  );
-                  const isSelectedDay =
-                    week === selectedWeek && day === selectedDay;
-
-                  return (
-                    <div
-                      key={day}
-                      className={`p-4 rounded-lg ${
-                        isSelectedDay
-                          ? "bg-purple-100 border-2 border-purple-400"
-                          : "bg-slate-50"
-                      }`}
-                    >
-                      <h4 className="font-bold text-purple-700 mb-2 text-sm">
-                        {day} - {date.format("DD/MM/YYYY")}
-                      </h4>
-
-                      {dayAttendance.length > 0 ? (
-                        dayAttendance.map((item, idx) => (
-                          <div key={idx} className="mb-3 text-xs">
-                            <div className="font-semibold">
-                              {item.courseCode}
-                            </div>
-                            <div>{item.courseTitle}</div>
-                            <div className="text-gray-500">
-                              Lecturer: {item.lecturer}
-                            </div>
-                            <div className="text-gray-500">
-                              Duration: {item.duration}
-                            </div>
-                            <div
-                              className={`flex items-center gap-1 font-medium ${
-                                item.status === "Attended"
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
-                            >
-                              {item.status === "Attended" ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : (
-                                <XCircle className="h-4 w-4" />
-                              )}
-                              {item.status}
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-gray-400 text-sm">No record</p>
-                      )}
-                    </div>
-                  );
-                })}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredClasses.map((cls, idx) => {
+            const attendedToday = cls.attendees.some(
+              (att) =>
+                att.studentId === userId &&
+                dayjs(att.attendanceTime).isSame(selectedDate, "day")
+            );
+            return (
+              <div
+                key={idx}
+                className={`p-4 rounded-lg flex flex-col justify-between ${
+                  attendedToday
+                    ? "bg-green-50 border border-green-400"
+                    : "bg-slate-50 border border-gray-200"
+                }`}
+              >
+                <div>
+                  <h5 className="font-bold text-purple-700 mb-1 text-base">
+                    {cls.title}
+                  </h5>
+                  <p className="text-sm text-gray-700 mb-1">
+                    Lecturer: Dr. {cls.lecturerName} {cls.lecturerlastName}
+                  </p>
+                  <p className="text-sm text-gray-700 mb-1">
+                    Duration: {cls.duration} mins
+                  </p>
+                </div>
+                {attendedToday ? (
+                  <div className="flex items-center gap-2 text-green-600 font-semibold">
+                    <CheckCircle className="h-5 w-5" /> Attended
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-red-500 font-semibold">
+                    <XCircle className="h-5 w-5" /> Absent
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        })
+            );
+          })}
+        </div>
       )}
     </div>
   );

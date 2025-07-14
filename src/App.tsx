@@ -31,7 +31,7 @@ import StudentDashboard from "./pages/student/Home/StudentDashboard";
 import { ToastContainer } from "react-toastify";
 import VerifyEmail from "./pages/Auth/VerifyEmail/VerifyEmail";
 import { StudentTable } from "./components/StudentTable";
-import { TimetableView } from "./components/TimetableView";
+import { PersonalAttendanceTable } from "./components/TimetableView";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -63,7 +63,7 @@ export default function App() {
         <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
         <Route path="/lecturer-dashboard/history" element={<StudentTable />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
-        <Route path="/student-dashboard/history" element={<TimetableView />} />
+        <Route path="/student-dashboard/history" element={<PersonalAttendanceTable />} />
       </Routes>
       <ToastContainer />
     </Router>
