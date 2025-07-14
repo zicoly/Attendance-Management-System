@@ -6,6 +6,7 @@ import StudentDashboard from "./pages/student/Home/StudentDashboard";
 import { ToastContainer } from "react-toastify";
 import VerifyEmail from "./pages/Auth/VerifyEmail/VerifyEmail";
 import { StudentTable } from "./components/StudentTable";
+import { TimetableView } from "./components/TimetableView";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
         <Route path="/lecturer-dashboard/history" element={<StudentTable />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/student-dashboard/history" element={<TimetableView />} />
       </Routes>
       <ToastContainer />
     </Router>
