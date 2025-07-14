@@ -336,7 +336,7 @@
 //     </div>
 //   );
 // }
-//@ts-nocheck
+
 import {
   BookOpen,
   MapPin,
@@ -580,11 +580,35 @@ export default function ClassCard({
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
+      <button
+        onClick={() => {
+          if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+          }
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              console.log("Location granted:", position.coords);
+              // You can set your userLocation state here
+            },
+            (error) => {
+              console.error("Location error:", error);
+              alert("Location permission denied or unavailable.");
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+          );
+        }}
+        className="px-4 py-2 bg-blue-600 text-white rounded"
+      >
+        📍 Enable Location
+      </button>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-2 rounded-full">
             <BookOpen className="w-5 h-5 text-white" />
           </div>
+
           <div>
             <h3 className="font-bold text-gray-900">{classData.title}</h3>
             <p className="text-sm text-gray-500">Code: {classData.code}</p>
