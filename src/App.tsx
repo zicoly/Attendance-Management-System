@@ -30,6 +30,7 @@ import LecturerDashboard from "./pages/lecturer/Home/LecturerDashboard";
 import StudentDashboard from "./pages/student/Home/StudentDashboard";
 import { ToastContainer } from "react-toastify";
 import VerifyEmail from "./pages/Auth/VerifyEmail/VerifyEmail";
+import { StudentTable } from "./components/StudentTable";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -59,6 +60,7 @@ export default function App() {
         <Route path="/verify" element={<VerifyEmail />} />
         <Route path="/" element={<Login />} />
         <Route path="/lecturer-dashboard" element={<LecturerDashboard />} />
+        <Route path="/lecturer-dashboard/history" element={<StudentTable />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
       </Routes>
       <ToastContainer />
