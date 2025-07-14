@@ -534,7 +534,7 @@ export default function ClassCard({
         level: studentInfo.level,
         phone: studentInfo.phone,
         studentId: studentInfo.studentId,
-        location: userLocation, // Include location in attendance record
+        location: userLocation, // Include location in attendance records
         distanceFromClass: distanceToClass,
       });
 
