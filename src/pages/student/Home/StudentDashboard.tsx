@@ -234,6 +234,15 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
       <Header />
+      <button
+        className="my-6 border bg-indigo-600 p-2 text-white"
+        onClick={() => {
+          localStorage.clear();
+          alert("Local storage cleared!");
+        }}
+      >
+        Clear LocalStorage
+      </button>
 
       <div className="max-w-7xl mx-auto">
         <AlertMessage message={message} type={messageType} />

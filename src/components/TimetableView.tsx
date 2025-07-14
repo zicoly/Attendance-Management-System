@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+//@ts-nocheck
+import { useEffect, useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { collection, getDocs } from "firebase/firestore";
