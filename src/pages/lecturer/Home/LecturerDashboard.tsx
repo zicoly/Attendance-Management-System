@@ -413,7 +413,7 @@ export default function LecturerDashboard() {
             Welcome back!
           </h2>
           <p className="text-gray-600 text-lg">
-            Manage your classes and track student attendance with geofencing
+            Manage your classes and track student attendance with geofencing.
           </p>
         </div>
 
