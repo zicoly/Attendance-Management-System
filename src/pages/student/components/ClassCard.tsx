@@ -339,7 +339,6 @@
 
 import {
   BookOpen,
-  MapPin,
   Clock,
   Users,
   User,
@@ -362,7 +361,7 @@ export default function ClassCard({
   const [userLocation, setUserLocation] = useState<any>(null);
   const [distanceToClass, setDistanceToClass] = useState<number | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [localAttendedClasses, setLocalAttendedClasses] = useState([]);
+  const [localAttendedClasses, setLocalAttendedClasses] = useState<any>([]);
 
   const allowedRadius = classData.geofence?.radius || 5; // Default 5m
   const classLocation = {
