@@ -363,7 +363,7 @@ export default function ClassCard({
   const [locationError, setLocationError] = useState<string | null>(null);
   const [localAttendedClasses, setLocalAttendedClasses] = useState<any>([]);
 
-  const allowedRadius = classData.geofence?.radius || 5; // Default 5m
+  const allowedRadius = classData.geofence?.radius || 100; // Default 5m
   const classLocation = {
     lat: classData.geofence?.latitude,
     lng: classData.geofence?.longitude,
@@ -534,7 +534,7 @@ export default function ClassCard({
         level: studentInfo.level,
         phone: studentInfo.phone,
         studentId: studentInfo.studentId,
-        location: userLocation, // Include location in attendance record
+        location: userLocation, // Include location in attendance records
         distanceFromClass: distanceToClass,
       });
 
@@ -579,29 +579,6 @@ export default function ClassCard({
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300">
-      <button
-        onClick={() => {
-          if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser.");
-            return;
-          }
-
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              console.log("Location granted:", position.coords);
-              // You can set your userLocation state here
-            },
-            (error) => {
-              console.error("Location error:", error);
-              alert("Location permission denied or unavailable.");
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
-          );
-        }}
-        className="px-4 py-2 bg-blue-600 text-white rounded"
-      >
-        📍 Enable Location
-      </button>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-2 rounded-full">
