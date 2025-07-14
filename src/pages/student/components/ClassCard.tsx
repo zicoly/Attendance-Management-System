@@ -836,7 +836,6 @@ import {
   CheckCircle,
   Timer,
   Navigation,
-  Wifi,
 } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 
@@ -878,7 +877,7 @@ export default function ClassCard({
   const getLocationWithRetry = async (retries = 3) => {
     for (let i = 0; i < retries; i++) {
       try {
-        const position = await getCurrentPositionPromise();
+        const position: any = await getCurrentPositionPromise();
         const { latitude, longitude, accuracy } = position.coords;
 
         console.log(`Location attempt ${i + 1}:`, {
