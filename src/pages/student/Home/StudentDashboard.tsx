@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "../components/Header";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useAttendance from "../../../hooks/useAttendance";
 import useStudentProfile from "../../../hooks/useStudentProfile";
 import ActiveClasses from "../components/ActiveClasses";
@@ -14,6 +14,7 @@ import { db } from "../../../config/firebase";
 import useUserData from "../../../hooks/useUserData";
 import { useUserStore } from "../../../store/userStore";
 import { toast } from "react-toastify";
+import { History } from "lucide-react";
 
 export default function StudentDashboard() {
   useUserData();
@@ -234,15 +235,26 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
       <Header />
-      <button
-        className="my-6 border bg-indigo-600 p-2 text-white"
-        onClick={() => {
-          localStorage.clear();
-          alert("Local storage cleared!");
-        }}
-      >
-        Clear LocalStorage
-      </button>
+      <section className="w-full flex justify-between items-center">
+        <button
+          className="my-6 border bg-indigo-600 p-2 text-white"
+          onClick={() => {
+            localStorage.clear();
+            alert("Local storage cleared!");
+          }}
+        >
+          Clear LocalStorage
+        </button>
+        <div className="mb-8">
+          <Link
+            to="/student-dashboard/history"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 flex items-center gap-2 border border-gray-200"
+          >
+            <History className="w-4 h-4" />
+            History
+          </Link>
+        </div>
+      </section>
 
       <div className="max-w-7xl mx-auto">
         <AlertMessage message={message} type={messageType} />
