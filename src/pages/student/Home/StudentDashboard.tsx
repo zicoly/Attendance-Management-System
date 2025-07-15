@@ -237,7 +237,7 @@ export default function StudentDashboard() {
       <Header />
       <section className="w-full flex justify-between items-center">
         <button
-          className="my-6 border bg-indigo-600 p-2 text-white"
+          className="my-6 border bg-indigo-600 p-1 text-xs rounded-md cursor-pointer text-white"
           onClick={() => {
             localStorage.clear();
             alert("Local storage cleared!");
