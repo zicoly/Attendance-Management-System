@@ -98,7 +98,6 @@ export const StudentTable: React.FC = () => {
   });
 
 
-  const noRecord = filteredClasses.length === 0;
 
   const downloadCSV = (students: Student[], title: string) => {
     if (students.length === 0)
