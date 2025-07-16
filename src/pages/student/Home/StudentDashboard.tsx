@@ -235,8 +235,8 @@ export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
       <Header />
-      <section className="w-full flex justify-between items-center">
-        <button
+      <section className="w-full flex justify-end items-center">
+        {/* <button
           className="my-6 border bg-indigo-600 p-1 text-xs rounded-md cursor-pointer text-white"
           onClick={() => {
             localStorage.clear();
@@ -244,7 +244,7 @@ export default function StudentDashboard() {
           }}
         >
           Clear LocalStorage
-        </button>
+        </button> */}
         <div className="mb-8">
           <Link
             to="/student-dashboard/history"
